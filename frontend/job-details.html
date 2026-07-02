@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Job Details | Minatlou Security & Projects</title>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Source+Sans+3:wght@300;400;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="css/base.css"/>
+<link rel="stylesheet" href="css/pages.css"/>
+</head>
+<body>
+
+<div id="site-navbar"></div>
+
+<main class="page-content">
+  <div id="jobDetailRoot">
+    <div class="container" style="padding-top:4rem;">
+      <div class="spinner"></div>
+    </div>
+  </div>
+</main>
+
+<div id="site-footer"></div>
+
+<script src="js/auth.js"></script>
+<script src="js/api.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/partials.js"></script>
+<script src="js/job-card.js"></script>
+<script src="js/nav.js"></script>
+<script>
+/**
+ * Job details controller.
+ * Reads ?id=<jobId> from the URL and loads GET /api/jobs/:id.
+ * Falls back to sample data (matching careers.html's fallback
+ * set) only when the backend is not connected — remove
+ * FALLBACK_JOB_DETAILS once /api/jobs/:id is live.
+ */
+const FALLBACK_JOB_DETAILS = {
+  'sg-001': {
+    id: 'sg-001', title: 'Security Guard — Grade C', location: 'Mmabatho', type: 'Full-Time',
+    department: 'Physical Security', postedAt: new Date(Date.now() - 2 * 86400000).toISOString(),
+    description: 'Minatlou Security & Projects is looking for reliable, PSIRA-registered security guards to join our physical security division. You will be responsible for access control, patrols, and incident reporting at commercial and industrial sites across Mmabatho.',
+    responsibilities: [
+      'Conduct regular foot and vehicle patrols of assigned premises',
+      'Monitor and control access at entry and exit points',
+      'Complete accurate incident and occurrence reports',
+      'Respond promptly to alarms and emergencies',
+      'Maintain a professional, uniformed presence at all times',
+    ],
+    requirements: [
+      'Valid PSIRA registration (Grade C or higher)',
+      'Matric certificate or equivalent',
+      'Minimum 1 year experience in a similar role',
+      'Clear criminal record',
+      'Own reliable transport to and from site an advantage',
+    ],
+  },
+};
+
+function getQueryParam(name) {
+  return new URLSearchParams(window.location.search).get(name);
+}
+
+function renderNotFound() {
+  document.getElementById('jobDetailRoot').innerHTML = `
+    <div class="container" style="padding:5rem 2rem; text-align:center;">
+      <h2 class="section-title">Job Not <span>Found</span></h2>
+      <p style="color:var(--grey); margin-bottom:2rem;">This opening may have closed or the link is invalid.</p>
+      <a class="btn btn-primary" href="careers.html">Back to Careers</a>
+    </div>`;
+}
+
+function renderJobDetail(job) {
+  const root = document.getElementById('jobDetailRoot');
+  root.innerHTML = `
+    <div class="job-detail-header">
+      <div class="container">
+        <div class="breadcrumb">
+          <a href="index.html">Home</a><span class="sep">/</span>
+          <a href="careers.html">Careers</a><span class="sep">/</span>
+          <span class="current">${job.title}</span>
+        </div>
+        <div class="job-badge" style="display:inline-block;">${job.type}</div>
+        <h1 class="job-detail-title">${job.title}</h1>
+        <div class="job-detail-meta">
+          <span class="job-meta-item"><span class="ic">📍</span> ${job.location}</span>
+          ${job.department ? `<span class="job-meta-item"><span class="ic">🏢</span> ${job.department}</span>` : ''}
+          <span class="job-meta-item"><span class="ic">🗓️</span> Posted ${timeAgo(job.postedAt)}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="job-detail-layout">
+        <div class="job-detail-body">
+          <h2>Job Description</h2>
+          <p>${job.description}</p>
+
+          ${job.responsibilities && job.responsibilities.length ? `
+          <h2>Responsibilities</h2>
+          <ul>${job.responsibilities.map((r) => `<li>${r}</li>`).join('')}</ul>` : ''}
+
+          ${job.requirements && job.requirements.length ? `
+          <h2>Requirements</h2>
+          <ul>${job.requirements.map((r) => `<li>${r}</li>`).join('')}</ul>` : ''}
+        </div>
+
+        <aside class="job-apply-card">
+          <a class="btn btn-primary" href="apply.html?id=${encodeURIComponent(job.id)}">Apply for This Role</a>
+          <div class="divider" style="margin:1.25rem auto;"></div>
+          <div class="job-apply-list">
+            <div class="row"><span>Location</span><span>${job.location}</span></div>
+            <div class="row"><span>Type</span><span>${job.type}</span></div>
+            ${job.department ? `<div class="row"><span>Department</span><span>${job.department}</span></div>` : ''}
+            <div class="row"><span>Posted</span><span>${timeAgo(job.postedAt)}</span></div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  `;
+}
+
+async function loadJobDetail() {
+  const id = getQueryParam('id');
+  if (!id) return renderNotFound();
+
+  try {
+    const data = await ApiService.JobsAPI.get(id);
+    const job = (data && data.job) || data;
+    if (!job || !job.title) throw new Error('not found');
+    renderJobDetail(job);
+  } catch (err) {
+    // Backend not connected yet — fall back to sample data if we
+    // recognise the id. Remove this catch once /api/jobs/:id is live.
+    const fallback = FALLBACK_JOB_DETAILS[id];
+    if (fallback) {
+      renderJobDetail(fallback);
+    } else {
+      renderNotFound();
+    }
+  }
+}
+
+loadJobDetail();
+</script>
+</body>
+</html>

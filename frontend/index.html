@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Minatlou Security & Projects | Mmabatho, North West</title>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Source+Sans+3:wght@300;400;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="css/base.css"/>
+<link rel="stylesheet" href="css/pages.css"/>
+</head>
+<body>
+
+<div id="site-navbar"></div>
+
+<main class="page-content no-pad-top">
+  <section id="hero-section">
+    <div class="hero-bg" style="background-image:url('assets/img/hero-bg.png');"></div>
+    <div class="hero-overlay"></div>
+    <div class="hero-line"></div>
+    <div class="hero-content">
+      <img class="hero-logo" src="assets/img/logo.png" alt="Minatlou Shield"/>
+      <div class="hero-tag">Mmabatho · North West Province · South Africa</div>
+      <h1 class="hero-title">
+        <span class="accent">MINATLOU</span><br/>
+        <span>SECURITY</span> &amp; <span class="red">PROJECTS</span>
+      </h1>
+      <p class="hero-sub">Specialising in Security Services — Est. 2010</p>
+      <div class="hero-btns">
+        <button class="btn btn-primary" onclick="openQuoteModal()">Get a Quote</button>
+        <a class="btn btn-outline" href="services.html">Our Services</a>
+      </div>
+    </div>
+    <a class="hero-scroll" href="about.html">Scroll</a>
+  </section>
+
+  <div class="stats-bar">
+    <div class="stats-inner">
+      <div class="stat"><div class="num">15+</div><div class="lbl">Years Experience</div></div>
+      <div class="stat"><div class="num">6</div><div class="lbl">Core Services</div></div>
+      <div class="stat"><div class="num">7</div><div class="lbl">Days a Week</div></div>
+      <div class="stat"><div class="num">PSIRA</div><div class="lbl">Registered & Certified</div></div>
+    </div>
+  </div>
+
+  <!-- Services teaser -->
+  <div class="section" style="background:var(--dark);">
+    <div class="container">
+      <div class="reveal" style="text-align:center; margin-bottom:3rem;">
+        <div class="section-label">What We Offer</div>
+        <h2 class="section-title">Our <span>Services</span></h2>
+        <div class="divider" style="margin:0 auto 1rem;"></div>
+        <p style="color:var(--grey); max-width:600px; margin:0 auto;">From physical guard services to VIP protection and CCTV installation — we deliver professional security solutions across Mahikeng and the broader North West Province.</p>
+      </div>
+      <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:1rem;">
+        <a class="service-card reveal" href="services.html" style="text-decoration:none; color:inherit;">
+          <div class="service-card-accent"></div>
+          <img class="service-card-img" src="assets/img/service-1.jpg" alt="Physical Security"/>
+          <div class="service-card-body">
+            <div class="service-icon">🛡️</div>
+            <h3>Physical Security</h3>
+            <p>Professional guard deployment for commercial and industrial premises.</p>
+            <span class="service-link">Learn More →</span>
+          </div>
+        </a>
+        <a class="service-card reveal" href="services.html" style="text-decoration:none; color:inherit;">
+          <div class="service-card-accent"></div>
+          <img class="service-card-img" src="assets/img/service-2.jpg" alt="Event Security"/>
+          <div class="service-card-body">
+            <div class="service-icon">🎪</div>
+            <h3>Event Security</h3>
+            <p>Expert crowd management for sports, concerts, and special occasions.</p>
+            <span class="service-link">Learn More →</span>
+          </div>
+        </a>
+        <a class="service-card reveal" href="services.html" style="text-decoration:none; color:inherit;">
+          <div class="service-card-accent"></div>
+          <img class="service-card-img" src="assets/img/service-3.jpg" alt="VIP Protection"/>
+          <div class="service-card-body">
+            <div class="service-icon">⭐</div>
+            <h3>VIP Protection</h3>
+            <p>Close protection for dignitaries, executives, and government officials.</p>
+            <span class="service-link">Learn More →</span>
+          </div>
+        </a>
+      </div>
+      <div style="text-align:center; margin-top:2.5rem;" class="reveal">
+        <a class="btn btn-primary" href="services.html">View All Services</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Fleet showcase -->
+  <div class="section" style="background:var(--dark2);">
+    <div class="container">
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:3rem; align-items:center;">
+        <div class="reveal">
+          <div class="section-label">Our Fleet</div>
+          <h2 class="section-title">Equipped &amp; <span>Ready</span></h2>
+          <div class="divider"></div>
+          <p style="color:var(--grey); margin-bottom:1rem;">Our branded vehicle fleet patrols and responds across Mmabatho and North West Province — visible, professional, and always on duty.</p>
+          <p style="color:var(--grey); margin-bottom:2rem;">From armed response bakkies to executive transport, our vehicles are a mark of trusted security presence.</p>
+          <a class="btn btn-outline" href="gallery.html">View Gallery</a>
+        </div>
+        <div class="reveal">
+          <img src="assets/img/home-feature.jpg" alt="Minatlou Fleet" style="width:100%; border-radius:6px; border:2px solid rgba(26,143,227,0.2);"/>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div style="background:var(--blue); padding:4rem 0; text-align:center;">
+    <div class="container">
+      <h2 style="font-family:var(--font-head); font-size:2.2rem; text-transform:uppercase; margin-bottom:0.8rem;">Ready to Secure Your Business?</h2>
+      <p style="color:rgba(255,255,255,0.85); margin-bottom:2rem; font-size:1.05rem;">Get a free, no-obligation quote from Minatlou Security & Projects today.</p>
+      <div style="display:flex; gap:1rem; justify-content:center; flex-wrap:wrap;">
+        <button class="btn" style="background:#fff; color:var(--blue); border:2px solid #fff;" onclick="openQuoteModal()">Get a Free Quote</button>
+        <a class="btn btn-outline" style="border-color:rgba(255,255,255,0.6); color:#fff;" href="contact.html">Contact Us</a>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div id="quote-modal-mount"></div>
+<div id="site-footer"></div>
+
+<script src="js/auth.js"></script>
+<script src="js/api.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/partials.js"></script>
+<script src="js/quote-modal.js"></script>
+<script src="js/nav.js"></script>
+</body>
+</html>

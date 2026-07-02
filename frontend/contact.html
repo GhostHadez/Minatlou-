@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Contact Us | Minatlou Security & Projects</title>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Source+Sans+3:wght@300;400;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="css/base.css"/>
+<link rel="stylesheet" href="css/pages.css"/>
+</head>
+<body>
+
+<div id="site-navbar"></div>
+
+<main class="page-content">
+  <div class="section" style="background:var(--dark);">
+    <div class="container">
+      <div class="reveal">
+        <div class="section-label">Get In Touch</div>
+        <h2 class="section-title">Contact <span>Us</span></h2>
+        <div class="divider"></div>
+      </div>
+      <div class="contact-grid">
+        <div class="contact-info">
+          <div class="contact-item reveal">
+            <div class="contact-icon">📍</div>
+            <div>
+              <div class="lbl">Head Office Address</div>
+              <div class="val">50025 Seweding Village<br/>Mmabatho, North West Province</div>
+            </div>
+          </div>
+          <div class="contact-item reveal">
+            <div class="contact-icon">📞</div>
+            <div>
+              <div class="lbl">Phone (Landline)</div>
+              <div class="val"><a href="tel:+27183840333">+27 18 384 0333</a></div>
+            </div>
+          </div>
+          <div class="contact-item reveal">
+            <div class="contact-icon">💬</div>
+            <div>
+              <div class="lbl">WhatsApp</div>
+              <div class="val"><a href="https://wa.me/27615254281" target="_blank" rel="noopener">061 525 4281</a></div>
+            </div>
+          </div>
+          <div class="contact-item reveal">
+            <div class="contact-icon">🕐</div>
+            <div>
+              <div class="lbl">Trading Hours</div>
+              <div class="hours-grid">
+                <span>Mon – Sun</span><span>07:00 – 17:00</span>
+                <span>Public Holidays</span><span style="color:#00c850;">Open ✓</span>
+              </div>
+            </div>
+          </div>
+          <div class="contact-item reveal">
+            <div class="contact-icon">🏢</div>
+            <div>
+              <div class="lbl">Company Details</div>
+              <div class="hours-grid">
+                <span>Reg No</span><span>2010/0505/23</span>
+                <span>PSIRA</span><span>2353214</span>
+                <span>Owner</span><span>M.A. Taile</span>
+              </div>
+            </div>
+          </div>
+          <div style="display:flex; gap:1rem; flex-wrap:wrap;" class="reveal">
+            <a href="tel:+27183840333" class="btn btn-outline" style="flex:1; text-align:center; text-decoration:none;">📞 Call Us</a>
+            <a href="https://wa.me/27615254281" target="_blank" rel="noopener" class="btn btn-primary" style="flex:1; text-align:center; background:#25d366; border-color:#25d366;">💬 WhatsApp</a>
+          </div>
+          <button class="btn btn-red reveal" onclick="openQuoteModal()" style="width:100%;">📋 Request a Quote</button>
+        </div>
+        <div class="map-wrap reveal">
+          <iframe
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d114742.71432013956!2d25.530530!3d-25.852248!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x1e956e48a17e1a11%3A0xb7fe2e2ff9e4ef8b!2sMmabatho%2C%20North%20West!5e0!3m2!1sen!2sza!4v1716000000000!5m2!1sen!2sza"
+            allowfullscreen="" loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade"
+            title="Minatlou Security — Mmabatho, North West">
+          </iframe>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div id="quote-modal-mount"></div>
+<div id="site-footer"></div>
+
+<script src="js/auth.js"></script>
+<script src="js/api.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/partials.js"></script>
+<script src="js/quote-modal.js"></script>
+<script src="js/nav.js"></script>
+</body>
+</html>

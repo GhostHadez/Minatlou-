@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Gallery | Minatlou Security & Projects</title>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Source+Sans+3:wght@300;400;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="css/base.css"/>
+<link rel="stylesheet" href="css/pages.css"/>
+</head>
+<body>
+
+<div id="site-navbar"></div>
+
+<main class="page-content">
+  <div class="section" style="background:var(--dark2);">
+    <div class="container">
+      <div class="reveal" style="text-align:center; margin-bottom:1rem;">
+        <div class="section-label">In The Field</div>
+        <h2 class="section-title">Our <span>Gallery</span></h2>
+        <div class="divider" style="margin:0 auto 1rem;"></div>
+        <p style="color:var(--grey); max-width:600px; margin:0 auto;">A look at Minatlou Security & Projects in action — our team, fleet, and operations across Mahikeng and the North West Province.</p>
+      </div>
+      <div class="gallery-grid" id="galleryGrid">
+        <div class="gallery-item reveal" onclick="openLightbox(0)">
+          <img src="assets/img/service-1.jpg" alt="Exhibition Stand"/>
+          <div class="gallery-overlay"><span>Exhibition Stand</span></div>
+        </div>
+        <div class="gallery-item reveal" onclick="openLightbox(1)">
+          <img src="assets/img/service-2.jpg" alt="Tactical Unit"/>
+          <div class="gallery-overlay"><span>Tactical Unit</span></div>
+        </div>
+        <div class="gallery-item reveal" onclick="openLightbox(2)">
+          <img src="assets/img/about.jpg" alt="Our Team"/>
+          <div class="gallery-overlay"><span>Our Team</span></div>
+        </div>
+        <div class="gallery-item reveal" onclick="openLightbox(3)">
+          <img src="assets/img/gallery-4.jpg" alt="Event Security"/>
+          <div class="gallery-overlay"><span>Event Security</span></div>
+        </div>
+        <div class="gallery-item reveal" onclick="openLightbox(4)">
+          <img src="assets/img/service-3.jpg" alt="Patrol Vehicle"/>
+          <div class="gallery-overlay"><span>Patrol Vehicle</span></div>
+        </div>
+        <div class="gallery-item reveal" onclick="openLightbox(5)">
+          <img src="assets/img/service-4.jpg" alt="Venue Security"/>
+          <div class="gallery-overlay"><span>Venue Security</span></div>
+        </div>
+        <div class="gallery-item reveal" onclick="openLightbox(6)">
+          <img src="assets/img/service-5.jpg" alt="Vehicle Fleet"/>
+          <div class="gallery-overlay"><span>Our Fleet</span></div>
+        </div>
+        <div class="gallery-item reveal" onclick="openLightbox(7)" style="grid-column:span 1;">
+          <img src="assets/img/home-feature.jpg" alt="Headquarters"/>
+          <div class="gallery-overlay"><span>Headquarters</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox" onclick="closeLightboxOutside(event)">
+  <button class="lightbox-close" onclick="closeLightbox()">×</button>
+  <button class="lightbox-prev" onclick="lightboxNav(-1)">‹</button>
+  <img class="lightbox-img" id="lightboxImg" src="" alt=""/>
+  <button class="lightbox-next" onclick="lightboxNav(1)">›</button>
+  <div class="lightbox-caption" id="lightboxCaption"></div>
+</div>
+
+<div id="quote-modal-mount"></div>
+<div id="site-footer"></div>
+
+<script src="js/auth.js"></script>
+<script src="js/api.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/partials.js"></script>
+<script src="js/quote-modal.js"></script>
+<script src="js/nav.js"></script>
+<script>
+const galleryImages = [
+  {src: "assets/img/service-1.jpg", caption: "Exhibition Stand"},
+  {src: "assets/img/service-2.jpg", caption: "Tactical Unit"},
+  {src: "assets/img/about.jpg", caption: "Our Team"},
+  {src: "assets/img/gallery-4.jpg", caption: "Event Security"},
+  {src: "assets/img/service-3.jpg", caption: "Patrol Vehicle"},
+  {src: "assets/img/service-4.jpg", caption: "Venue Security"},
+  {src: "assets/img/service-5.jpg", caption: "Vehicle Fleet"},
+  {src: "assets/img/home-feature.jpg", caption: "Headquarters"},
+];
+let currentLightbox = 0;
+
+function openLightbox(index) {
+  currentLightbox = index;
+  const lb = document.getElementById('lightbox');
+  document.getElementById('lightboxImg').src = galleryImages[index].src;
+  document.getElementById('lightboxCaption').textContent = galleryImages[index].caption;
+  lb.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('open');
+  document.body.style.overflow = '';
+}
+function closeLightboxOutside(e) {
+  if (e.target === document.getElementById('lightbox')) closeLightbox();
+}
+function lightboxNav(dir) {
+  currentLightbox = (currentLightbox + dir + galleryImages.length) % galleryImages.length;
+  document.getElementById('lightboxImg').src = galleryImages[currentLightbox].src;
+  document.getElementById('lightboxCaption').textContent = galleryImages[currentLightbox].caption;
+}
+document.addEventListener('keydown', (e) => {
+  if (!document.getElementById('lightbox').classList.contains('open')) return;
+  if (e.key === 'ArrowLeft') lightboxNav(-1);
+  if (e.key === 'ArrowRight') lightboxNav(1);
+  if (e.key === 'Escape') closeLightbox();
+});
+</script>
+</body>
+</html>

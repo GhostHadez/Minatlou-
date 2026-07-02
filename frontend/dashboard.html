@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>My Dashboard | Minatlou Security & Projects</title>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Source+Sans+3:wght@300;400;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="css/base.css"/>
+<link rel="stylesheet" href="css/pages.css"/>
+</head>
+<body>
+
+<div id="site-navbar"></div>
+
+<main class="page-content">
+  <div class="page-header">
+    <div class="container">
+      <div class="section-label">Applicant Portal</div>
+      <h1 class="section-title">My <span>Dashboard</span></h1>
+      <p>Track the status of your job applications and manage your profile.</p>
+    </div>
+  </div>
+
+  <div class="section" style="padding-top:2rem;">
+    <div class="container">
+      <div class="dash-grid">
+        <!-- PROFILE SUMMARY -->
+        <aside class="dash-profile-card reveal" id="profileCard">
+          <div class="spinner"></div>
+        </aside>
+
+        <!-- APPLICATIONS -->
+        <div>
+          <div class="dash-stats reveal" id="dashStats"></div>
+
+          <h2 class="section-title" style="font-size:1.4rem; margin-bottom:1rem;">My <span>Applications</span></h2>
+          <div class="applications-table" id="applicationsList">
+            <div class="spinner"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div id="site-footer"></div>
+
+<script src="js/auth.js"></script>
+<script src="js/api.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/partials.js"></script>
+<script src="js/job-card.js"></script>
+<script src="js/nav.js"></script>
+<script>
+/**
+ * Dashboard controller.
+ * Requires an active session (redirects to login otherwise).
+ * Loads GET /api/profile and GET /api/applications in parallel.
+ * Falls back to sample data only when the backend isn't
+ * connected yet — remove the fallbacks once both endpoints are live.
+ */
+if (!Auth.requireAuth()) {
+  // requireAuth already redirected; stop executing this script.
+  throw new Error('Redirecting to login');
+}
+
+const FALLBACK_PROFILE = {
+  fullName: (Auth.getUser() && Auth.getUser().fullName) || 'Applicant',
+  email: (Auth.getUser() && Auth.getUser().email) || 'you@example.com',
+  phone: (Auth.getUser() && Auth.getUser().phone) || '+27 82 000 0000',
+  memberSince: new Date().toISOString(),
+};
+
+const FALLBACK_APPLICATIONS = [
+  { id: 'app-1', jobTitle: 'Security Guard — Grade C', jobLocation: 'Mmabatho', status: 'Pending', appliedAt: new Date(Date.now() - 3 * 86400000).toISOString() },
+  { id: 'app-2', jobTitle: 'Event Security Supervisor', jobLocation: 'Mahikeng', status: 'Approved', appliedAt: new Date(Date.now() - 10 * 86400000).toISOString() },
+  { id: 'app-3', jobTitle: 'CCTV Installation Technician', jobLocation: 'North West', status: 'Rejected', appliedAt: new Date(Date.now() - 25 * 86400000).toISOString() },
+];
+
+function initials(name) {
+  return (name || '')
+    .split(' ')
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((n) => n[0].toUpperCase())
+    .join('');
+}
+
+function renderProfile(profile) {
+  const card = document.getElementById('profileCard');
+  const memberSince = profile.memberSince
+    ? new Date(profile.memberSince).toLocaleDateString('en-ZA', { month: 'long', year: 'numeric' })
+    : '—';
+
+  card.innerHTML = `
+    <div class="dash-avatar">${initials(profile.fullName) || '👤'}</div>
+    <h3>${profile.fullName || 'Applicant'}</h3>
+    <div class="email">${profile.email || ''}</div>
+    <div class="dash-profile-list">
+      <div class="row"><span>Phone</span><span>${profile.phone || '—'}</span></div>
+      <div class="row"><span>Member Since</span><span>${memberSince}</span></div>
+    </div>
+    <button class="btn btn-outline" data-logout>Logout</button>
+  `;
+  card.querySelector('[data-logout]').addEventListener('click', (e) => {
+    e.preventDefault();
+    Auth.logout();
+  });
+}
+
+function statusClass(status) {
+  const s = (status || '').toLowerCase();
+  if (s === 'approved') return 'status-approved';
+  if (s === 'rejected') return 'status-rejected';
+  return 'status-pending';
+}
+
+function renderStats(applications) {
+  const counts = { total: applications.length, pending: 0, approved: 0 };
+  applications.forEach((a) => {
+    const s = (a.status || '').toLowerCase();
+    if (s === 'pending') counts.pending++;
+    if (s === 'approved') counts.approved++;
+  });
+  document.getElementById('dashStats').innerHTML = `
+    <div class="dash-stat"><div class="num">${counts.total}</div><div class="lbl">Total Applications</div></div>
+    <div class="dash-stat"><div class="num">${counts.pending}</div><div class="lbl">Pending Review</div></div>
+    <div class="dash-stat"><div class="num">${counts.approved}</div><div class="lbl">Approved</div></div>
+  `;
+}
+
+function renderApplications(applications) {
+  const list = document.getElementById('applicationsList');
+
+  if (!applications.length) {
+    list.innerHTML = `
+      <div class="empty-state">
+        <div class="ic">📋</div>
+        <p>You haven't applied for any jobs yet.</p>
+        <a class="btn btn-primary" style="margin-top:1rem;" href="careers.html">Browse Openings</a>
+      </div>`;
+    return;
+  }
+
+  list.innerHTML = applications.map((app) => `
+    <div class="app-row">
+      <div>
+        <div class="title">${app.jobTitle}</div>
+        <div class="sub">${app.jobLocation || ''} · Applied ${timeAgo(app.appliedAt)}</div>
+      </div>
+      <span class="status-pill ${statusClass(app.status)}">${app.status}</span>
+    </div>
+  `).join('');
+}
+
+async function loadDashboard() {
+  const [profileResult, applicationsResult] = await Promise.allSettled([
+    ApiService.ProfileAPI.get(),
+    ApiService.ApplicationsAPI.list(),
+  ]);
+
+  const profile = profileResult.status === 'fulfilled' && profileResult.value
+    ? (profileResult.value.profile || profileResult.value)
+    : FALLBACK_PROFILE;
+
+  const applicationsRaw = applicationsResult.status === 'fulfilled' && applicationsResult.value
+    ? (applicationsResult.value.applications || applicationsResult.value)
+    : FALLBACK_APPLICATIONS;
+
+  const applications = Array.isArray(applicationsRaw) ? applicationsRaw : FALLBACK_APPLICATIONS;
+
+  renderProfile(profile);
+  renderStats(applications);
+  renderApplications(applications);
+}
+
+loadDashboard();
+</script>
+</body>
+</html>

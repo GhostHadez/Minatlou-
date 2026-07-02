@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Apply Now | Minatlou Security & Projects</title>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Source+Sans+3:wght@300;400;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="css/base.css"/>
+<link rel="stylesheet" href="css/pages.css"/>
+</head>
+<body>
+
+<div id="site-navbar"></div>
+
+<main class="page-content">
+  <div class="page-header">
+    <div class="container">
+      <div class="breadcrumb">
+        <a href="index.html">Home</a><span class="sep">/</span>
+        <a href="careers.html">Careers</a><span class="sep">/</span>
+        <span class="current">Apply</span>
+      </div>
+      <h1 class="section-title">Job <span>Application</span></h1>
+      <p>Review your details, attach your documents, and submit your application.</p>
+    </div>
+  </div>
+
+  <div class="section" style="padding-top:2rem;">
+    <div class="container">
+      <div class="apply-layout">
+        <div>
+          <!-- STEP 1: APPLICANT DETAILS -->
+          <div class="apply-section reveal">
+            <h2><span class="step-num">1</span> Your Details</h2>
+            <div class="prefill-grid" id="prefillGrid">
+              <div class="prefill-item"><div class="lbl">Full Name</div><div class="val" id="pfName">—</div></div>
+              <div class="prefill-item"><div class="lbl">Email</div><div class="val" id="pfEmail">—</div></div>
+              <div class="prefill-item"><div class="lbl">Phone</div><div class="val" id="pfPhone">—</div></div>
+              <div class="prefill-item"><div class="lbl">Applying As</div><div class="val">Job Applicant</div></div>
+            </div>
+            <p style="color:var(--grey); font-size:0.82rem; margin-top:0.9rem; margin-bottom:0;">
+              These details come from your account profile. To update them, visit your
+              <a href="dashboard.html" style="color:var(--blue);">dashboard</a> first.
+            </p>
+          </div>
+
+          <!-- STEP 2: CV UPLOAD -->
+          <div class="apply-section reveal">
+            <h2><span class="step-num">2</span> Upload Your CV</h2>
+            <div class="upload-zone" id="cvUploadZone">
+              <div class="ic">📄</div>
+              <div class="main-txt">Click or drag your CV here</div>
+              <div class="sub-txt">PDF, DOC or DOCX — max 5MB</div>
+              <input type="file" id="cvUploadInput" accept=".pdf,.doc,.docx"/>
+            </div>
+            <div class="file-list" id="cvFileList"></div>
+          </div>
+
+          <!-- STEP 3: SUPPORTING DOCUMENTS -->
+          <div class="apply-section reveal">
+            <h2><span class="step-num">3</span> Supporting Documents <span style="color:var(--grey); font-weight:400; text-transform:none; letter-spacing:0; font-size:0.8rem;">(optional)</span></h2>
+            <div class="upload-zone" id="docsUploadZone">
+              <div class="ic">📎</div>
+              <div class="main-txt">Add PSIRA cert, ID copy, references, etc.</div>
+              <div class="sub-txt">PDF, DOC or DOCX — max 5MB each, multiple files allowed</div>
+              <input type="file" id="docsUploadInput" accept=".pdf,.doc,.docx" multiple/>
+            </div>
+            <div class="file-list" id="docsFileList"></div>
+          </div>
+        </div>
+
+        <!-- SUMMARY / SUBMIT -->
+        <aside class="apply-summary reveal">
+          <h3>Application Summary</h3>
+          <div class="job-mini-title" id="summaryJobTitle">Loading job…</div>
+          <div class="job-mini-meta" id="summaryJobMeta"></div>
+          <div class="divider" style="margin:0 0 1.25rem;"></div>
+          <div class="checkbox-row">
+            <input type="checkbox" id="confirmAccurate"/>
+            <label for="confirmAccurate">I confirm the information and documents provided are accurate and complete.</label>
+          </div>
+          <div class="form-error" id="applyFormError"></div>
+          <button class="btn btn-primary" id="submitApplicationBtn">Submit Application</button>
+        </aside>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div id="site-footer"></div>
+
+<script src="js/auth.js"></script>
+<script src="js/api.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/partials.js"></script>
+<script src="js/job-card.js"></script>
+<script src="js/file-upload.js"></script>
+<script src="js/nav.js"></script>
+<script>
+/**
+ * Apply flow controller.
+ * Requires an active session. Loads the target job (from
+ * ?id=<jobId>) and the current user's profile to pre-fill
+ * applicant details, then submits a multipart FormData payload
+ * to POST /api/applications/:jobId containing the form fields
+ * plus the CV and any supporting documents.
+ */
+if (!Auth.requireAuth()) {
+  throw new Error('Redirecting to login');
+}
+
+const jobId = new URLSearchParams(window.location.search).get('id');
+if (!jobId) {
+  window.location.href = 'careers.html';
+  throw new Error('Missing job id');
+}
+
+const ALLOWED_DOC_TYPES = [
+  'application/pdf',
+  'application/msword',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+];
+const ALLOWED_DOC_EXT = ['pdf', 'doc', 'docx'];
+
+const cvUploader = createFileUpload({
+  zoneId: 'cvUploadZone', inputId: 'cvUploadInput', listId: 'cvFileList',
+  multiple: false, maxSizeMB: 5, allowedTypes: ALLOWED_DOC_TYPES, allowedExt: ALLOWED_DOC_EXT,
+});
+
+const docsUploader = createFileUpload({
+  zoneId: 'docsUploadZone', inputId: 'docsUploadInput', listId: 'docsFileList',
+  multiple: true, maxSizeMB: 5, allowedTypes: ALLOWED_DOC_TYPES, allowedExt: ALLOWED_DOC_EXT,
+});
+
+function fillApplicantDetails() {
+  const user = Auth.getUser() || {};
+  document.getElementById('pfName').textContent = user.fullName || '—';
+  document.getElementById('pfEmail').textContent = user.email || '—';
+  document.getElementById('pfPhone').textContent = user.phone || '—';
+}
+
+async function loadJobSummary() {
+  const titleEl = document.getElementById('summaryJobTitle');
+  const metaEl = document.getElementById('summaryJobMeta');
+  try {
+    const data = await ApiService.JobsAPI.get(jobId);
+    const job = (data && data.job) || data;
+    titleEl.textContent = job.title;
+    metaEl.textContent = `${job.location} · ${job.type}`;
+  } catch (err) {
+    titleEl.textContent = 'Selected Position';
+    metaEl.textContent = `Reference: ${jobId}`;
+  }
+}
+
+const submitBtn = document.getElementById('submitApplicationBtn');
+const applyFormError = document.getElementById('applyFormError');
+
+submitBtn.addEventListener('click', async () => {
+  applyFormError.classList.remove('show');
+
+  if (cvUploader.getFiles().length === 0) {
+    applyFormError.textContent = 'Please upload your CV before submitting.';
+    applyFormError.classList.add('show');
+    return;
+  }
+  if (cvUploader.hasErrors() || docsUploader.hasErrors()) {
+    applyFormError.textContent = 'Please fix the highlighted file errors before submitting.';
+    applyFormError.classList.add('show');
+    return;
+  }
+  if (!document.getElementById('confirmAccurate').checked) {
+    applyFormError.textContent = 'Please confirm your information is accurate before submitting.';
+    applyFormError.classList.add('show');
+    return;
+  }
+
+  const user = Auth.getUser() || {};
+  const formData = new FormData();
+  formData.append('fullName', user.fullName || '');
+  formData.append('email', user.email || '');
+  formData.append('phone', user.phone || '');
+  formData.append('cv', cvUploader.getFiles()[0]);
+  docsUploader.getFiles().forEach((file) => formData.append('documents', file));
+
+  setButtonLoading(submitBtn, true, 'Submitting…');
+  try {
+    await ApiService.ApplicationsAPI.submit(jobId, formData);
+    showToast('Application submitted successfully!');
+    window.location.href = 'dashboard.html';
+  } catch (err) {
+    applyFormError.textContent = err.message || 'Something went wrong submitting your application. Please try again.';
+    applyFormError.classList.add('show');
+  } finally {
+    setButtonLoading(submitBtn, false);
+  }
+});
+
+fillApplicantDetails();
+loadJobSummary();
+</script>
+</body>
+</html>
