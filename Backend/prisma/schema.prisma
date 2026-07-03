@@ -1,0 +1,199 @@
+// =============================================================
+// MINATLOU BACKEND — PRISMA SCHEMA
+// =============================================================
+// Sprint 1: schema + relationships only. No business logic,
+// no seeded business rules — that's Sprint 2+ (auth, jobs CRUD,
+// application workflow, admin review).
+//
+// Field names were chosen to match what the existing frontend
+// already expects in API responses (see frontend/js/*.js), e.g.
+// User.fullName, Job.postedAt, Application.status, so Sprint 2's
+// controllers can serialize these models with minimal mapping.
+// =============================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// -------------------------------------------------------------
+// ENUMS
+// -------------------------------------------------------------
+
+enum JobType {
+  FULL_TIME
+  PART_TIME
+  CONTRACT
+  TEMPORARY
+}
+
+enum ApplicationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum DocumentType {
+  CV
+  SUPPORTING_DOCUMENT
+}
+
+// -------------------------------------------------------------
+// USER
+// -------------------------------------------------------------
+// A registered job applicant. Authentication (password hashing,
+// login, JWT issuance) is implemented in Sprint 2 — this model
+// only defines the data shape and its relationships.
+
+model User {
+  id           String   @id @default(uuid())
+  fullName     String
+  email        String   @unique
+  passwordHash String
+  phone        String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  profile      Profile?
+  applications Application[]
+
+  @@map("users")
+}
+
+// -------------------------------------------------------------
+// PROFILE
+// -------------------------------------------------------------
+// One-to-one extension of User holding additional applicant
+// details that aren't needed at login time (kept separate so the
+// core auth model stays small and the profile can grow — address,
+// PSIRA registration number, etc. — without touching auth logic).
+
+model Profile {
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  address   String?
+  idNumber  String?
+  bio       String?
+  avatarUrl String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("profiles")
+}
+
+// -------------------------------------------------------------
+// JOB
+// -------------------------------------------------------------
+// A job opening. `postedBy` links to the AdminUser who created
+// the listing. Matches the fields the careers/job-details pages
+// already render: title, location, type, description, department,
+// postedAt, plus responsibilities/requirements as string arrays
+// for the job-details page's bullet lists.
+
+model Job {
+  id               String   @id @default(uuid())
+  title            String
+  location         String
+  type             JobType
+  department       String?
+  description      String
+  responsibilities String[]
+  requirements     String[]
+  isActive         Boolean  @default(true)
+  postedAt         DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  postedById String?
+  postedBy   AdminUser? @relation(fields: [postedById], references: [id], onDelete: SetNull)
+
+  applications Application[]
+
+  @@map("jobs")
+  @@index([isActive])
+  @@index([location])
+  @@index([type])
+}
+
+// -------------------------------------------------------------
+// APPLICATION
+// -------------------------------------------------------------
+// Links a User to a Job they applied for. `status` drives the
+// dashboard's Pending/Approved/Rejected pill. `reviewedBy` links
+// to the AdminUser who actioned it (nullable until reviewed).
+
+model Application {
+  id         String            @id @default(uuid())
+  userId     String
+  jobId      String
+  status     ApplicationStatus @default(PENDING)
+  coverNote  String?
+  appliedAt  DateTime          @default(now())
+  updatedAt  DateTime          @updatedAt
+
+  reviewedById String?
+  reviewedBy   AdminUser? @relation(fields: [reviewedById], references: [id], onDelete: SetNull)
+
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  job       Job        @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  documents Document[]
+
+  // A user should only be able to apply once per job.
+  @@unique([userId, jobId])
+  @@map("applications")
+  @@index([status])
+  @@index([userId])
+  @@index([jobId])
+}
+
+// -------------------------------------------------------------
+// DOCUMENT
+// -------------------------------------------------------------
+// A single uploaded file (CV or supporting document) attached to
+// an Application. Storage is filesystem-based for Sprint 1/2
+// (see UPLOAD_DIR in .env) — `filePath` stores the relative path
+// under uploads/. Swappable for S3/Cloud storage later without
+// changing the schema (just what `filePath` points to).
+
+model Document {
+  id            String       @id @default(uuid())
+  applicationId String
+  type          DocumentType
+  fileName      String
+  filePath      String
+  mimeType      String
+  fileSizeBytes Int
+  uploadedAt    DateTime     @default(now())
+
+  application Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  @@map("documents")
+  @@index([applicationId])
+}
+
+// -------------------------------------------------------------
+// ADMIN USER
+// -------------------------------------------------------------
+// A staff account (separate from applicant Users) that can post
+// jobs and review applications. Kept as its own model rather than
+// a `role` flag on User so applicant and staff auth/permissions
+// stay cleanly separated.
+
+model AdminUser {
+  id           String   @id @default(uuid())
+  fullName     String
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  postedJobs        Job[]
+  reviewedApplications Application[]
+
+  @@map("admin_users")
+}
